@@ -1,105 +1,83 @@
 # Code Assistant Project
 
-A sophisticated code generation and documentation management system that leverages AI to assist developers in their coding workflow.
+A code generation and documentation management system that leverages AI to assist developers in their coding workflow.
 
 ## 🚀 Features
 
-### Completed Features
-- **Code Generation Graph**
-  - Multi-step code generation workflow
-  - Code validation and verification
-  - Context-aware code suggestions
 
-- **Document Management**
-  - Documentation generation
-  - Code documentation parsing
-  - Documentation versioning
-  - Searchable documentation system
+## 📋 Todo list
+### ✅ Completed
+- [x] Code Generation Graph
+- [x] Demo with gradio
 
-### In Progress
-- **FastAPI Integration**
-  - RESTful API endpoints
-  - Authentication and authorization
-  - API documentation
-  - Performance optimization
-- **CodeBase embedding**
-### Planned Features
-- **Overall Graph System**
-  - Unified code generation pipeline
-  - Cross-language support
-  - Advanced context management
-  - Real-time collaboration features
-
-## 📋 Todo List
-
-### High Priority
-- [ ] Complete FastAPI backend implementation
-  - [ ] Set up authentication system
-  - [ ] Implement rate limiting
-  - [ ] Add API documentation
-  - [ ] Optimize database queries
-
-- [ ] Develop Overall Graph System
-  - [ ] Design graph architecture
-  - [ ] Implement context management
-  - [ ] Add cross-language support
-  - [ ] Create graph visualization tools
-
-### Code Quality & Testing
-- [ ] Implement comprehensive unit testing
-  - [ ] Test code generation workflow
-  - [ ] Test documentation management
-  - [ ] Test API endpoints
-  - [ ] Add integration tests
-
-- [ ] Code quality improvements
-  - [ ] Add type hints
-  - [ ] Implement logging system
-  - [ ] Add error handling
-  - [ ] Optimize performance
-
-### Documentation & UI
-- [ ] Enhance documentation
-  - [ ] Add API documentation
-  - [ ] Create user guides
-  - [ ] Add code examples
-  - [ ] Document deployment process
-
-- [ ] Improve user interface
-  - [ ] Design responsive UI
-  - [ ] Implement real-time updates
-  - [ ] Add user feedback system
-
-### Future Enhancements
-- [ ] Add AI model fine-tuning capabilities
-- [ ] Implement code review suggestions
-- [ ] Add code refactoring tools
-- [ ] Create code snippet library
-- [ ] Add team collaboration features
-- [ ] Implement code version control integration
-- [ ] Add performance monitoring tools
-- [ ] Create analytics dashboard
+### ⏳ In Progress
+- [ ] Build Overall Graph
+### 🗓️ Planned
+- [ ] Codebase embeddings
+- [ ] Backend Development with FastAPI
+- [ ] Integrate the Agent.
 
 ## 🛠️ Technical Stack
 
-- **Backend**: 
-- **Frontend**: 
-- **Database**: 
-- **AI/ML**: 
+- **Backend**: FastAPI
+- **Frontend**: Undecided
+- **LLM**: API from gemini or GPT
+- **RAG**: LangChain, Langgraph
 
 ## 📁 Project Structure
 
 ```
 .
 ├── src/                # Source code
+│   ├── app.py         # Main application entry
+│   ├── core/          # Core functionality
+│   ├── demo/          # Demo implementations
+│   ├── app/           # Application modules
+│   └── test/          # Test files
 ├── data/              # Data files
 ├── docs/              # Documentation
-├── tests/             # Test files
 ├── requirements.txt   # Python dependencies
 └── .env              # Environment variables
 ```
 
 ## 🔧 Installation
 
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd code-assistant
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up environment variables:
+Create a `.env` file in the root directory and add your OpenAI/Google API key:
+```
+OPENAI_API_KEY= ...
+GOOGLE_API_KEY ...
+```
+
 ## 🚀 Quick Start
 
+1. Start the application:
+```bash
+python src/app.py
+```
+
+2. Open your web browser and navigate to the URL shown in the terminal (typically http://localhost:7860)
+
+
+## 📝 Notes
+
+- The project is currently using Gradio for the interface but is in the process of transitioning to a client-server/MTV architecture
+- Make sure you have a valid OpenAI/Google API key before running the application
+- The code generation workflow includes multiple steps: generation, checking, reflection, and decision making
