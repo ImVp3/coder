@@ -1,0 +1,87 @@
+coder/
+├── config/                   # Tệp cấu hình cho các môi trường khác nhau
+│   ├── __init__.py
+│   ├── development.yaml
+│   ├── production.yaml
+│   └── test.yaml
+├── docs/                     # Tài liệu dự án
+│   ├── api.md
+│   ├── architecture.md
+│   └── setup.md
+├── requirements/             # Quản lý thư viện phụ thuộc
+│   ├── base.txt            # Core dependencies
+│   ├── dev.txt             # Development dependencies (tests, linters)
+│   └── prod.txt            # Production specific (e.g., gunicorn)
+├── scripts/                  # Các script tiện ích
+│   ├── setup.sh
+│   └── run_tests.sh
+├── src/                      # Mã nguồn chính của ứng dụng
+│   ├── __init__.py
+│   ├── core/                 # Logic nghiệp vụ cốt lõi, độc lập với bên ngoài
+│   │   ├── __init__.py
+│   │   ├── interfaces/       # <<< KEY: Định nghĩa các Abstract Base Classes (ABCs) / Protocols
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py     # (Optional) Interface cho config provider
+│   │   │   ├── database.py   # AbstractDatabase, AbstractVectorStore
+│   │   │   └── graph.py      # AbstractGraph, AbstractPromptTemplate
+│   │   ├── common/           # Các tiện ích / cấu hình chung cho core
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py     # Logic load cấu hình từ file (có thể implement interfaces.config)
+│   │   │   ├── logging.py    # Thiết lập logging
+│   │   │   └── exceptions.py # Định nghĩa các exception tùy chỉnh của core
+│   │   ├── database/         # Các cài đặt (implementations) cụ thể cho database
+│   │   │   ├── __init__.py
+│   │   │   ├── vector_store.py # VectorStore implementation (implements interfaces.database.AbstractVectorStore)
+│   │   │   └── utils/        # Tiện ích liên quan đến database
+│   │   │       ├── __init__.py
+│   │   │       └── schema.py   # Định nghĩa schema (nếu cần)
+│   │   └── graph/            # Các cài đặt (implementations) cụ thể cho graph/logic chính
+│   │       ├── __init__.py
+│   │       ├── codegen_graph.py # CodeGenGraph implementation (implements interfaces.graph.AbstractGraph)
+│   │       │                  # <<< Phụ thuộc vào interfaces.database.AbstractVectorStore (qua DI)
+│   │       ├── prompt_templates/ # Logic liên quan đến prompt templates
+│   │       │   ├── __init__.py
+│   │       │   ├── base.py     # Base template (có thể implements interfaces.graph.AbstractPromptTemplate)
+│   │       │   └── codegen_templates.py # Template cụ thể cho codegen
+│   │       └── utils/        # Tiện ích liên quan đến graph
+│   │           ├── __init__.py
+│   │           └── workflow.py # Logic xử lý workflow (nếu có)
+│   ├── api/                  # Lớp API (ví dụ: FastAPI, Flask)
+│   │   ├── __init__.py
+│   │   ├── dependencies.py   # <<< KEY: Nơi định nghĩa cách tạo và inject dependencies cho API
+│   │   ├── routers/          # Định nghĩa các API endpoints (routes)
+│   │   │   ├── __init__.py
+│   │   │   ├── graph.py      # <<< Phụ thuộc vào interfaces.graph.AbstractGraph (qua DI)
+│   │   │   └── database.py   # <<< Phụ thuộc vào interfaces.database.AbstractDatabase (nếu cần, qua DI)
+│   │   └── server.py         # Khởi tạo và chạy API server, thiết lập DI (nếu dùng container)
+│   ├── ui/                   # Lớp giao diện người dùng (ví dụ: Gradio)
+│   │   ├── __init__.py
+│   │   ├── app.py            # Entry point chính của ứng dụng UI
+│   │   ├── interface.py      # Định nghĩa layout, components của Gradio UI
+│   │   ├── callbacks.py      # <<< KEY: Logic xử lý sự kiện UI
+│   │   │                  # <<< Phụ thuộc vào interfaces.* từ core (qua DI)
+│   │   └── components/       # Các thành phần UI tái sử dụng (nếu cần)
+│   │       ├── __init__.py
+│   │       ├── chat.py
+│   │       └── code_editor.py
+│   ├── tests/                  # Tests các loại
+│   │   ├── __init__.py
+│   │   ├── conftest.py       # Fixtures cho Pytest (rất hữu ích cho DI trong test)
+│   │   ├── unit/             # Unit tests (test từng đơn vị nhỏ, dùng Mocks)
+│   │   │   ├── __init__.py
+│   │   │   ├── core/         # Test các thành phần core (dùng mock cho dependencies)
+│   │   │   │   ├── test_graph.py
+│   │   │   │   └── test_database.py 
+│   │   │   └── api/          # Test các routers/logic API (dùng mock cho core services)
+│   │   │       └── test_graph_router.py
+│   │   └── integration/      # Integration tests (test sự phối hợp giữa các thành phần)
+│   │       ├── __init__.py
+│   │       └── test_api_flow.py # Test luồng hoàn chỉnh qua API
+│   └── notebooks/              # Jupyter notebooks cho thử nghiệm, phân tích
+│       ├── __init__.py
+│       └── experiments/
+│           ├── __init__.py
+│           └── graph_testing.ipynb
+├── .env.example              # File mẫu cho biến môi trường
+├── .gitignore                # Các file/thư mục bỏ qua bởi Git
+└── README.md                 # Hướng dẫn tổng quan về dự án

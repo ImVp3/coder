@@ -1,7 +1,7 @@
 import gradio as gr
-from .utils import * 
-from .config import *
+from . import utils
 
+MODEL_CHOICES = ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
 class ChatUI :
     def __init__(self, vector_store, graph) :
         self.vector_store = vector_store
@@ -82,7 +82,7 @@ class ChatUI :
                     
                     if "generation" in state and state["generation"]:
                         # Get the last message
-                        last_message = parse_code_generation(state["generation"][-1])
+                        last_message = utils.parse_code_generation(state["generation"][-1])
                         history[-1][1] = last_message
                         yield history, flow_str
                 yield history, flow_str
@@ -141,17 +141,17 @@ class ChatUI :
                                 value= self.vector_store.list_source()
                             )
                 url_btn.click( 
-                    fn= lambda url_input, max_depth: handle_url_btn(url_input, max_depth, self.vector_store) ,
+                    fn= lambda url_input, max_depth: utils.handle_url_btn(url_input, max_depth, self.vector_store) ,
                     inputs = [url_input, max_depth],
                     outputs= [status,source_list]
                 )
                 file_btn.click(
-                    fn= lambda file_uploader: handle_file_btn(file_uploader, self.vector_store),
+                    fn= lambda file_uploader: utils.handle_file_btn(file_uploader, self.vector_store),
                     inputs= [file_uploader],
                     outputs= [status,source_list]
                 )
                 delete_docs.submit(
-                    fn= lambda source: handle_delete_source(source, self.vector_store),
+                    fn= lambda source: utils.handle_delete_source(source, self.vector_store),
                     inputs= [delete_docs],
                     outputs= [status, source_list]
                 )

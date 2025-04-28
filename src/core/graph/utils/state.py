@@ -1,13 +1,8 @@
-from pydantic import BaseModel, Field
-from langgraph.graph import MessagesState
 from langchain.schema import Document
+from langgraph.graph import MessagesState
 from typing_extensions import List, Annotated
-from operator import add
-
-class Code(BaseModel):
-    prefix: str = Field(..., description="The description of the code")
-    imports: str = Field(..., description="The imports of the code")
-    code: str = Field(..., description="The code of the code")
+import operator
+from core.utils.schema import Code
 
 class State(MessagesState):
     """
@@ -18,7 +13,7 @@ class State(MessagesState):
         iteration: number of tries
     """
     error: bool = False
-    generation: Annotated[List[Code], add]
+    generation: Annotated[List[Code], operator.add]
     iterations: int
     documentation: List[Document]
-    flow: Annotated[List[str], add]
+    flow: Annotated[List[str], operator.add]

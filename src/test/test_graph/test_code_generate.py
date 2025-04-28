@@ -1,0 +1,1 @@
+# các hàm generate không có test case

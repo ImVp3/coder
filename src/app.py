@@ -7,17 +7,23 @@ load_dotenv(find_dotenv())
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
-from ui.interface import ChatUI  
-from src.ui.interface import ChatUI
-from src.core.vector_database import * 
-from src.core.graph import CodeGenGraph
+from demo.main import ChatUI 
+from core.graph.codegen_graph import CodeGenGraph
+from core.database.vector_store import VectorStore
 
 if __name__ == "__main__":
+    DEFAULT_MODEL = os.getenv("DEFAULT_MODEL")
+    VECTORSTORE_PATH= os.getenv("VECTORSTORE_PATH")
+    VECTORSTORE_COLLECTION= os.getenv("VECTORSTORE_COLLECTION")
+
+    
     vector_database = VectorStore(
-        persistent_path= "A:/Code/coder/data/chromadb",
-        collection_name="test"
+        persistent_path= VECTORSTORE_PATH,
+        collection_name= VECTORSTORE_COLLECTION
     ) 
-    graph = CodeGenGraph(model="gemini-2.0-flash-lite")  
+    graph = CodeGenGraph(
+        model=DEFAULT_MODEL,
+        retriever= vector_database.as_retriever())  
     ui = ChatUI(
         vector_store= vector_database,
         graph= graph
