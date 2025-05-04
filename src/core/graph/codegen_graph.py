@@ -1,7 +1,7 @@
 from typing import Dict
 from langgraph.graph import END, StateGraph, START
 from langchain.schema.retriever import BaseRetriever
-from .utils.state import State
+from .utils.state import CodeGenState
 from .utils import nodes
 from .utils.routing import decide_to_finish
 from .utils.helper import create_code_gen_chain
@@ -26,7 +26,7 @@ class CodeGenGraph:
         else:
             raise ValueError("Retriever must be a BaseRetriever.")
     def create_graph(self):
-        workflow = StateGraph(State)
+        workflow = StateGraph(CodeGenState)
         ## Add Nodes
         workflow.add_node(
             "retrieve",
@@ -100,3 +100,36 @@ class CodeGenGraph:
             "reflect": self.reflect,
             "framework": self.framework
         }
+    def visualize_graph(self, output_format: str = 'mermaid') -> str | bytes:
+        """
+        Visualizes the compiled LangGraph.
+
+        Args:
+            output_format (str): The desired output format.
+                                'mermaid' returns the MermaidJS syntax string.
+                                'png' returns the PNG image bytes (requires pygraphviz and graphviz).
+                                'ascii' returns an ASCII representation string.
+
+        Returns:
+            str | bytes: The graph visualization in the specified format.
+
+        Raises:
+            ValueError: If an unsupported output_format is provided.
+            ImportError: If 'png' format is requested but pygraphviz/graphviz is not installed.
+        """
+        if output_format == 'mermaid':
+            return self.graph.get_graph().draw_mermaid()
+        elif output_format == 'png':
+            try:
+                # This method often requires pygraphviz and a Graphviz installation
+                return self.graph.get_graph().draw_png()
+            except ImportError as e:
+                raise ImportError("Drawing PNG requires pygraphviz and Graphviz installation. "
+                                "Install with: pip install pygraphviz and ensure Graphviz is in your system PATH.") from e
+            except Exception as e:
+                print(f"Error drawing PNG: {e}")
+                raise
+        elif output_format == 'ascii':
+            return self.graph.get_graph().draw_ascii()
+        else:
+            raise ValueError(f"Unsupported output_format: {output_format}. Choose 'mermaid', 'png', or 'ascii'.")

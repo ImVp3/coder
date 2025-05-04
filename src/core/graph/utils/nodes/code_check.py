@@ -4,7 +4,7 @@ from langchain.schema.messages import BaseMessage, SystemMessage, HumanMessage
 from langchain.schema.document import Document
 
 from core.utils.schema import Code
-from core.graph.utils.state import State
+from core.graph.utils.state import CodeGenState
 
 NODE_NAME = "Code Check"
 FLOW_PASSED = f"{NODE_NAME}: Passed"
@@ -17,7 +17,7 @@ MESSAGE_NO_GENERATION = f"{NODE_NAME}: No code generation found in state."
 MESSAGE_INVALID_FORMAT = f"{NODE_NAME}: Latest generation is not a valid Code object."
 MESSAGE_EMPTY_CODE = f"Static Check: No code or imports found in the latest generation."
 
-def static_syntax_check_v2(state: State) -> State:
+def static_syntax_check_v2(state: CodeGenState) -> CodeGenState:
     """
     Performs a static syntax check on the latest generated code using `ast.parse`.
 

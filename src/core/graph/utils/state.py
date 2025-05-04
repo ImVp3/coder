@@ -4,9 +4,9 @@ from typing_extensions import List, Annotated
 import operator
 from core.utils.schema import Code
 
-class State(MessagesState):
-    """
-    Represents the state of the graph.
+class CodeGenState(MessagesState):
+    """ 
+    Represents the state of the code generation graph.
     Attributes:
         error: binary flag for control flow to indicate if an error occurred
         generation: generated code solution

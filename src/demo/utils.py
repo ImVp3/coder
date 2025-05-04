@@ -21,7 +21,6 @@ def parse_code_generation (code_generation):
     prefix = code_generation.prefix
     res = f"{prefix}\n```python\n{imports}\n{code}\n```"
     return res     
-
 def handle_url_btn (url_input: str, max_depth : int, vector_store ): 
     docs,status = load_docs_from_url(url=url_input, max_depth= max_depth)
     if len(docs):

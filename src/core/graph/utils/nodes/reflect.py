@@ -1,12 +1,12 @@
 from langchain.chains.llm import LLMChain
 from langchain.schema.messages import AIMessage
 from core.utils.schema import Code
-from core.graph.utils.state import State
+from core.graph.utils.state import CodeGenState
 from typing_extensions import List
 from langchain.schema.messages import BaseMessage
 
 STEP_NAME = "Reflect"
-def reflect(state: State, code_gen_chain: LLMChain, framework: str) -> dict:
+def reflect(state: CodeGenState, code_gen_chain: LLMChain, framework: str) -> dict:
     """
     Performs a reflection step upon encountering an error during code generation.
 

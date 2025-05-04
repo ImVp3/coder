@@ -1,10 +1,10 @@
-from core.graph.utils.state import State
+from core.graph.utils.state import CodeGenState
 from langchain.chains import LLMChain
 from langchain.schema.messages import HumanMessage, AIMessage
 
 GENERATION_RETRY = "Now, try again. Invoke the code tool to structure the output with a prefix, imports, and code block:"
 STEP_NAME = "Generate"
-def generate(state: State, code_gen_chain: LLMChain, framework: str):
+def generate(state: CodeGenState, code_gen_chain: LLMChain, framework: str):
     """
     Generates code based on the current state, documentation, and framework using an LLMChain.
 

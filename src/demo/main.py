@@ -10,18 +10,13 @@ class ChatUI :
     def create_ui (self):
         with gr.Blocks() as app:
             gr.Markdown("# Code Assistant")
-            documents_tab = self._create_documents_tab()
             chat_tab = self._create_chat_tab()
+            documents_tab = self._create_documents_tab()
         return app
     def _create_chat_tab (self):
         with gr.Tab(label="Chat") as chat_tab:
             gr.Markdown("## Chat")
-            chatbot = gr.Chatbot()
-            msg = gr.Textbox(label="Input")
-            clear = gr.Button("Clear")
-            status = gr.Textbox(label="Current Flow", interactive=False)
-            
-            with gr.Sidebar(label= "Settings", position="right") as sidebar:
+            with gr.Sidebar(label= "Code Generation Settings", position="right") as sidebar:
                 model_selection = gr.Dropdown(
                     choices= MODEL_CHOICES,
                     value= MODEL_CHOICES[0],
@@ -65,31 +60,16 @@ class ChatUI :
                     inputs= [model_selection, temperature,max_iterations, reflect, framework],
                     outputs= update_status
                 )
-
-            def user(user_message, history):
-                return "", history + [[user_message, None]]
-
-            def bot(history):
-                user_message = history[-1][0]
-                history[-1][1] = ""
-                
-                # Stream the response
-                for state in self.graph.stream(user_message):
-                    if "flow" in state:
-                        # Update flow status
-                        flow_str = " -> ".join(state["flow"])
-                        yield history, flow_str
-                    
-                    if "generation" in state and state["generation"]:
-                        # Get the last message
-                        last_message = utils.parse_code_generation(state["generation"][-1])
-                        history[-1][1] = last_message
-                        yield history, flow_str
-                yield history, flow_str
-            msg.submit(user, [msg, chatbot], [msg, chatbot]).then(
-                bot, chatbot, [chatbot, status]
+            chat_interface = gr.ChatInterface(
+                fn = self.chat_fn,
+                type = "messages",
             )
-            clear.click(lambda: None, None, chatbot, queue=False)
+    def chat_fn (self,message, history):
+        response = self.graph.invoke(message)
+        return {
+            "role": "assistant",
+            "content": response["messages"][-1].content
+        }
     def _create_documents_tab (self):
         with gr.Tab(label="Documents") as document_tab:
             with gr.Row():
@@ -106,7 +86,6 @@ class ChatUI :
                                 step=1,
                                 label= "Max Depth",
                                 interactive= True,
-                                
                             )
                             url_btn = gr.Button ("Save")
                         with gr.Tab("Upload by Files"):

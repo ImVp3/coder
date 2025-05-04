@@ -5,11 +5,11 @@ from langchain.schema.document import Document
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.documents import Document
 
-from ..state import State
+from ..state import CodeGenState
 
 EMPTY_DOCUMENT_CONTENT = "No specific documentation provided."
 empty_document = Document(page_content= EMPTY_DOCUMENT_CONTENT)
-def retrieve_docs(state: State, retriever: BaseRetriever) -> State:
+def retrieve_docs(state: CodeGenState, retriever: BaseRetriever) -> CodeGenState:
     """
     Retrieves documents relevant to the user's query using the provided retriever
     and updates the state.
