@@ -9,13 +9,13 @@ A code generation and documentation management system that leverages AI to assis
 ### ✅ Completed
 - [x] Code Generation Graph
 - [x] Demo with gradio
-
+- [x] Build Overall Graph
 ### ⏳ In Progress
-- [ ] Build Overall Graph
-### 🗓️ Planned
 - [ ] Codebase embeddings
-- [ ] Backend Development with FastAPI
 - [ ] Integrate the Agent.
+
+### 🗓️ Planned
+- [ ] Backend Development with FastAPI
 
 ## 🛠️ Technical Stack
 
