@@ -8,6 +8,7 @@ from langchain_core.documents import Document
 from ..state import CodeGenState
 
 EMPTY_DOCUMENT_CONTENT = "No specific documentation provided."
+FLOW_NAME = "Retrieve"
 empty_document = Document(page_content= EMPTY_DOCUMENT_CONTENT)
 def retrieve_docs(state: CodeGenState, retriever: BaseRetriever) -> CodeGenState:
     """
@@ -28,12 +29,12 @@ def retrieve_docs(state: CodeGenState, retriever: BaseRetriever) -> CodeGenState
     else:
         user_query = None
     if not user_query:
-        return {"documentation": [empty_document]}
+        return {"documentation": [empty_document], "flow": [FLOW_NAME]}
     # --- Use the retriever ---
     try:
         retrieved_docs: List[Document] = retriever.invoke(user_query)
     except Exception as e:
-        return {"documentation": [empty_document]} 
+        return {"documentation": [empty_document], "flow": [FLOW_NAME]} 
 
     # --- Return the update for the state ---
-    return {"documentation": retrieved_docs}
+    return {"documentation": retrieved_docs, "flow": [FLOW_NAME]}
