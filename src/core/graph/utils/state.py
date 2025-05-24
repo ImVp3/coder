@@ -18,15 +18,11 @@ class CodeGenState(MessagesState):
     documentation: List[Document]
     flow: Annotated[List[str], operator.add]
     
-class UnitTestWorkflowState(TypedDict):
-    original_code: str             
-    code_analysis: Optional[Dict[str, Any]] 
-    flow : Annotated[List[str], operator.add]
-    generated_test_code: Optional[str] 
-    current_coverage: Optional[float]   
-    coverage_achieved: bool             
-    generation_attempts: int          
-    max_generation_attempts: int       
-
-    error_message: Optional[str]       
-    final_summary: Optional[str]        
+class UnitTestWorkflowState(MessagesState):
+    original_code: str
+    analyzed_code: str
+    test_code: str
+    evaluation: dict
+    flow: Annotated[List[str], operator.add]
+    max_generation_attempts: int
+    generation_attempts: int

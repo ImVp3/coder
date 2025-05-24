@@ -64,7 +64,6 @@ class OverallGraph:
         duration = time.time() - start_time
         self.logger.log_node_completion("overall", "code_generator", {"output": result}, duration)
         return result
-
     def _call_casual_chain(self, state: MessagesState) -> MessagesState:
         """Invokes the simple conversational chain."""
         self.logger.log_node_execution("overall", "casual_responder", {"input": state["messages"][-1].content})
