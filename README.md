@@ -3,7 +3,7 @@
 An intelligent code generation and documentation management system designed to supercharge your development workflow using the power of AI. This project aims to provide developers with context-aware code generation, automated unit test generation .etc
 
 <center>
-<img src="./docs/structure.png" alt="Project Architecture Diagram" width="70%"\>
+<img src="./docs/structure.png" alt="Project Architecture Diagram" width="100%"\>
 </center>
 
 ## ✨ Key Features
