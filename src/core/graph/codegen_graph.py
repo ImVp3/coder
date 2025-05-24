@@ -2,7 +2,7 @@ from typing import Dict
 from langgraph.graph import END, StateGraph, START
 from langchain.schema.retriever import BaseRetriever
 from .utils.state import CodeGenState
-from .utils import nodes
+from .utils import codegen_nodes
 from .utils.routing import decide_to_finish
 from .utils.helper import create_code_gen_chain
 from ..logger import GraphLogger
@@ -35,19 +35,19 @@ class CodeGenGraph:
         ## Add Nodes
         workflow.add_node(
             "retrieve",
-            lambda state: self._wrap_node("retrieve", nodes.retrieve_docs, state, self.retriever)
+            lambda state: self._wrap_node("retrieve", codegen_nodes.retrieve_docs, state, self.retriever)
         )
         workflow.add_node(
             "generate",
-            lambda state: self._wrap_node("generate", nodes.generate, state, self.code_gen_chain, self.framework)
+            lambda state: self._wrap_node("generate", codegen_nodes.generate, state, self.code_gen_chain, self.framework)
         ) 
         workflow.add_node(
             "check_code",
-            lambda state: self._wrap_node("check_code", nodes.static_syntax_check_v2, state)
+            lambda state: self._wrap_node("check_code", codegen_nodes.static_syntax_check_v2, state)
         )  
         workflow.add_node(
             "reflect",
-            lambda state: self._wrap_node("reflect", nodes.reflect, state, self.code_gen_chain, self.framework)
+            lambda state: self._wrap_node("reflect", codegen_nodes.reflect, state, self.code_gen_chain, self.framework)
         ) 
         ## Add Edges
         workflow.add_edge(START, "retrieve")

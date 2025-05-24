@@ -19,7 +19,7 @@ import os
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')) # Adjust depth as needed
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
-from core.graph.utils.nodes.code_check import (
+from core.graph.utils.codegen_nodes.code_check import (
     static_syntax_check_v2,
     NODE_NAME, # Import NODE_NAME if used in constants
     FLOW_PASSED,
