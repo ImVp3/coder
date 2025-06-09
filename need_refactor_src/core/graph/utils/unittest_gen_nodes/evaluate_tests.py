@@ -73,9 +73,13 @@ def evaluate_tests(state: UnitTestWorkflowState, eval_chain) -> Dict[str, Any]:
             "messages": [SystemMessage(content=error_msg)],
             "flow": [EVALUATE_LLM_FLOW_FAILED_LLM_EVAL],
         }
-
+    llm_eval_result_str = {
+        **llm_eval_result,
+        "test_code": test_code,
+    }
+    llm_eval_result_str = json.dumps(llm_eval_result_str, indent=2)
     return {
-        "messages": [AIMessage(content=json.dumps(llm_eval_result))],
+        "messages": [AIMessage(content=llm_eval_result_str)],
         "evaluation": llm_eval_result,
         "flow": [f"{EVALUATE_LLM_FLOW_ASSESSMENT_GENERATED} [{llm_eval_result.get('qualitative_assessment')}]" ],
     }

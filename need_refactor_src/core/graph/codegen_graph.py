@@ -63,7 +63,7 @@ class CodeGenGraph:
             }
         )
         workflow.add_edge("reflect", "generate")
-        graph = workflow.compile()
+        graph = workflow.compile(name = "Code_Generator")
         return graph
 
     def _wrap_node(self, node_name: str, node_func, *args):
@@ -171,7 +171,14 @@ class CodeGenGraph:
             "reflect": self.reflect,
             "framework": self.framework
         }
-
+    def as_graph (self) -> StateGraph:
+        """
+        Returns the current StateGraph instance.
+        
+        Returns:
+            StateGraph: The current graph instance.
+        """
+        return self.graph
     def visualize_graph(self, output_format: str = 'mermaid') -> str | bytes:
         """
         Visualizes the compiled LangGraph.

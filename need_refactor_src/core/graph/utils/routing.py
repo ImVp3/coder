@@ -24,6 +24,16 @@ def decide_to_route (state, model:str) -> Literal["COMPLEX_GENERATION", "GENERAT
     routing_chain =create_routing_chain(model=model, actions_descriptions=action_descriptions)
     return routing_chain.invoke({"question": query}).content
 def decision_to_end_workflow(state) -> str:
-    if state["generation_attempts"] >= state["max_generation_attempts"] or state["evaluation"]["qualitative_assessment"] == "high":
+    try:
+        if state["generation_attempts"] >= state["max_generation_attempts"] or state["evaluation"]["qualitative_assessment"] == "high":
+            return "end"
+        return "regenerate"
+    except:
+        print(state)
+        return"end"
+def decision_to_extract(state) -> str:
+    if "messages" not in state and "original_code" not in state:
         return "end"
-    return "regenerate"
+    if "original_code" not in state or not state["original_code"]:
+        return "extract"
+    return "analyze"

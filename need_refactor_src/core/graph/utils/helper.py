@@ -55,3 +55,8 @@ def create_evaluation_chain(model: str,temperature: float = 0.0,) -> LLMChain:
     prompt = ChatPromptTemplate.from_template(template.EVALUATION_TEMPLATE)
     chain = prompt | llm | JsonOutputParser(pydantic_object=TestCodeEvaluation)
     return chain
+def create_extract_code_chain(model: str, temperature: float = 0.0) -> LLMChain:
+    llm = get_model(model, temperature)
+    prompt = ChatPromptTemplate.from_template(template.CODE_EXTRACTION_TEMPLATE)
+    chain = prompt | llm
+    return chain

@@ -28,6 +28,13 @@ Answer only with the type of query that you choose, just one word.
 The question:
 {question}
 """
+
+CODE_EXTRACTION_TEMPLATE = """Extract all code snippets from the following message.
+- If code is found, return ONLY the raw code as plain text. Do not include any markdown, backticks, language identifiers, or explanatory text.
+- If no code is found, respond with the exact string "NONE".
+The Message:
+{message}
+"""
 CODE_ANALYSIS_TEMPLATE = """
 You are an expert code analyst. Analyze the following Python code and provide a structured summary
 that will be useful for generating unit tests. Identify:

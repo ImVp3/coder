@@ -25,9 +25,10 @@ def generate(state: CodeGenState, code_gen_chain: LLMChain, framework: str):
         - 'flow': A list containing the name of this node ("Generate").
     """
     messages = state["messages"]
-    iterations = state["iterations"]
+    iterations = state.get("iterations", 0)
+    error = state.get("error", False)
     documents = "\n".join([doc.page_content for doc in state.get('documentation', []) if hasattr(doc, 'page_content')])
-    if state["error"] == True:
+    if error == True:
         messages += [HumanMessage(content= GENERATION_RETRY)]
     code_solution = code_gen_chain.invoke(
         {"context": documents , "question": messages, "framework": framework}
