@@ -8,7 +8,7 @@ from langchain_core.documents import Document
 from langchain.schema.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.language_models import BaseChatModel
 
-from utils.schemas import Code
+from utils.schemas import Code, FlowStep
 from utils.helpers import get_chat_model
 from .states import CodeGenState
 from .chains import create_code_gen_chain
@@ -19,7 +19,7 @@ load_dotenv(find_dotenv())
 
 # ----- CONSTANTS -----
 EMPTY_DOC = Document(page_content="No documentation")
-
+AGENT_NAME = "codegen_agent"
 
 # ----- NODE FUNCTIONS -----
 def retrieve_node(state: CodeGenState, retriever) -> dict:
@@ -30,7 +30,7 @@ def retrieve_node(state: CodeGenState, retriever) -> dict:
             docs = retriever.invoke(query)
         except Exception:
             pass
-    return {"documentation": docs, "flow": ["node:retrieve"]}
+    return {"documentation": docs, "flow": [FlowStep(step="retrieve", agent = AGENT_NAME)]}
 
 
 def generate_node(state: CodeGenState, chain, framework: str) -> dict:
@@ -46,7 +46,7 @@ def generate_node(state: CodeGenState, chain, framework: str) -> dict:
         "generation": [result],
         "messages": messages,
         "iterations": state.get("iterations", 0) + 1,
-        "flow": ["node:generate"]
+        "flow": [FlowStep(step="generate", agent = AGENT_NAME)]
     }
 
 
@@ -56,7 +56,8 @@ def check_code_node(state: CodeGenState) -> dict:
         return {
             "messages": state["messages"] + [SystemMessage(content="No generation")],
             "error": True,
-            "flow": ["node:check_code:no_generation"]
+            "flow": [FlowStep(step="check_code: no-generation error", agent = AGENT_NAME)]
+            
         }
 
     try:
@@ -65,13 +66,13 @@ def check_code_node(state: CodeGenState) -> dict:
         return {
             "messages": state["messages"] + [SystemMessage(content="Invalid format")],
             "error": True,
-            "flow": ["node:check_code:invalid_format"]
+            "flow": [FlowStep(step="check_code: invalid-format error", agent = AGENT_NAME)]
         }
 
     full_code = f"{code.imports}\n{code.code}"
     try:
         ast.parse(full_code)
-        return {"error": False, "flow": ["node:check_code:passed"]}
+        return {"error": False, "flow": [FlowStep(step="Check_code:passed", agent = AGENT_NAME)]}
     except SyntaxError as e:
         msg = (
             f"Syntax error:\nLine {e.lineno}, Offset {e.offset}\n{e.msg}\n"
@@ -80,7 +81,7 @@ def check_code_node(state: CodeGenState) -> dict:
         return {
             "messages": state["messages"] + [HumanMessage(content=msg)],
             "error": True,
-            "flow": ["node:check_code:failed"]
+            "flow": [FlowStep(step="check_code:syntax error", agent = AGENT_NAME)]
         }
 
 
@@ -93,7 +94,7 @@ def reflect_node(state: CodeGenState, chain, framework: str) -> dict:
     })
     return {
         "messages": state["messages"] + [AIMessage(content=f"Reflection: {result.prefix}")],
-        "flow": ["node:reflect"]
+        "flow":[FlowStep(step="reflect", agent = AGENT_NAME)]
     }
 
 

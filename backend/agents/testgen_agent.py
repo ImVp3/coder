@@ -10,7 +10,7 @@ from langgraph.types import Command
 from langchain_core.language_models import BaseChatModel
 from langgraph.types import Command
 from .states import TestGenState
-from utils.schemas import TestCodeEvaluation
+from utils.schemas import TestCodeEvaluation, FlowStep
 from .chains import (
     create_code_analysis_chain, 
     create_test_generation_chain, 
@@ -18,37 +18,39 @@ from .chains import (
     create_extract_code_chain
 )
 
+AGENT_NAME = "testgen_agent"
+
 # ---------- Node Functions ----------
 def extract_code_node(state: TestGenState, chain) -> Dict[str, Any] | Command:
     query = state.get("messages")
     if query:
         original_code = chain.invoke({"message": query}).content
         if original_code != "NONE":
-            return {"original_code": original_code, "flow": ["extract_code:success"]}
+            return {"original_code": original_code, "flow": [ FlowStep(agent=AGENT_NAME, step = "extract_code:success")]}
     return Command(update={
         "messages": [AIMessage(content="No code extracted from the messages.")],
-        "flow": ["extract_code:failed"]
+        "flow": [FlowStep(agent=AGENT_NAME, step = "extract_code:failed")]
     }, goto=END)
 
 def code_analysis_node(state: TestGenState, chain) -> Dict[str, Any]:
     original_code = state.get("original_code")
     if not original_code:
-        return {"messages": [SystemMessage(content="No original code")], "flow": ["code_analysis:failed:no_code"]}
+        return {"messages": [SystemMessage(content="No original code")], "flow": [FlowStep(agent=AGENT_NAME, step ="code_analysis:failed:no_code")]}
     analyzed = chain.invoke({"code_to_analyze": original_code})
     if not analyzed:
-        return {"messages": [SystemMessage(content="LLM analysis error")], "flow": ["code_analysis:failed:llm"]}
-    return {"analyzed_code": analyzed, "messages": [AIMessage(content=analyzed.model_dump_json(indent=2))], "flow": ["code_analysis:success"]}
+        return {"messages": [SystemMessage(content="LLM analysis error")], "flow": [FlowStep(agent=AGENT_NAME, step ="code_analysis:failed:llm")]}
+    return {"analyzed_code": analyzed, "messages": [AIMessage(content=analyzed.model_dump_json(indent=2))], "flow": [FlowStep(agent=AGENT_NAME, step ="code_analysis:success")]}
 
 def generate_tests_node(state: TestGenState, chain) -> Dict[str, Any]:
     analyzed_code = state.get("analyzed_code")
     original_code = state.get("original_code")
     attempts = state.get("generation_attempts", 0)
     if not analyzed_code:
-        return {"messages": [SystemMessage(content="No code analysis found")], "flow": ["generate_tests:failed:no_analysis"], "generation_attempts": attempts + 1}
+        return {"messages": [SystemMessage(content="No code analysis found")], "flow": [ FlowStep(agent=AGENT_NAME, step = "generate_tests:failed:no_analysis")], "generation_attempts": attempts + 1}
 
     components = analyzed_code.components
     if not components or not isinstance(components, list):
-        return {"messages": [SystemMessage(content="Invalid analysis format")], "flow": ["generate_tests:failed:invalid_format"],"generation_attempts": attempts + 1}
+        return {"messages": [SystemMessage(content="Invalid analysis format")], "flow": [ FlowStep(agent=AGENT_NAME, step = "generate_tests:failed:invalid_format")],"generation_attempts": attempts + 1}
 
     feedback = ""
     if state.get("test_code") and state.get("evaluation"):
@@ -69,16 +71,16 @@ def generate_tests_node(state: TestGenState, chain) -> Dict[str, Any]:
             })
             test_codes.append(response.content)
         except Exception as e:
-            return {"messages": [SystemMessage(content=f"Error generating test: {e}")], "flow": ["generate_tests:failed:llm"],"generation_attempts": attempts + 1}
+            return {"messages": [SystemMessage(content=f"Error generating test: {e}")], "flow": [ FlowStep(agent=AGENT_NAME, step = "generate_tests:failed:llm")],"generation_attempts": attempts + 1}
 
     if not test_codes:
-        return {"messages": [SystemMessage(content="No test generated")], "flow": ["generate_tests:failed:empty"]}
+        return {"messages": [SystemMessage(content="No test generated")], "flow": [ FlowStep(agent=AGENT_NAME, step = "generate_tests:failed:empty")]}
 
     combined = "\n\n".join(test_codes) + "\n\n# Add if __name__ == '__main__': unittest.main() if needed"
     return {
         "messages": [AIMessage(content=combined)],
         "test_code": combined,
-        "flow": ["generate_tests:success"],
+        "flow": [ FlowStep(agent=AGENT_NAME, step = "generate_tests:success")],
         "generation_attempts": attempts + 1,
     }
 
@@ -88,11 +90,11 @@ def evaluate_tests_node(state: TestGenState, chain) -> Dict[str, Any]:
     analyzed_code = state.get("analyzed_code")
 
     if not original_code:
-        return {"messages": [SystemMessage(content="No original code")], "flow": ["evaluate_tests:failed:no_code"]}
+        return {"messages": [SystemMessage(content="No original code")], "flow": [ FlowStep(agent=AGENT_NAME, step = "evaluate_tests:failed:no_code")]}
     if not test_code:
-        return {"messages": [SystemMessage(content="No test code")], "flow": ["evaluate_tests:failed:no_tests"]}
+        return {"messages": [SystemMessage(content="No test code")], "flow": [ FlowStep(agent=AGENT_NAME, step = "evaluate_tests:failed:no_tests")]}
     if not analyzed_code:
-        return {"messages": [SystemMessage(content="Missing analysis")], "flow": ["evaluate_tests:failed:no_analysis"]}
+        return {"messages": [SystemMessage(content="Missing analysis")], "flow": [ FlowStep(agent=AGENT_NAME, step = "evaluate_tests:failed:no_analysis")]}
 
     try:
         result = chain.invoke({
@@ -101,15 +103,15 @@ def evaluate_tests_node(state: TestGenState, chain) -> Dict[str, Any]:
             "test_code": test_code
         })
     except Exception as e:
-        return {"messages": [SystemMessage(content=f"Eval error: {e}")], "flow": ["evaluate_tests:failed:exception"]}
+        return {"messages": [SystemMessage(content=f"Eval error: {e}")], "flow": [ FlowStep(agent=AGENT_NAME, step = "evaluate_tests:failed:exception")]}
 
     if not isinstance(result, TestCodeEvaluation):
-        return {"messages": [SystemMessage(content="Invalid result format")], "flow": ["evaluate_tests:failed:bad_output"]}
+        return {"messages": [SystemMessage(content="Invalid result format")], "flow": [ FlowStep(agent=AGENT_NAME, step = "evaluate_tests:failed:bad_output")]}
 
     new_state = {
         "messages": [AIMessage(content= result.model_dump_json(indent=2))],
         "evaluation": result,
-        "flow": [f"evaluate_tests:success:{result.qualitative_assessment}"]
+        "flow": [FlowStep(agent=AGENT_NAME, step =f"evaluate_tests:success:{result.qualitative_assessment}")]
     }
     if state["generation_attempts"] >= state.get("max_generation_attempts",3) or result.qualitative_assessment == "high":
         return Command(
@@ -117,7 +119,9 @@ def evaluate_tests_node(state: TestGenState, chain) -> Dict[str, Any]:
             update = {
                 "messages": [AIMessage(content= result.model_dump_json(indent=2)), AIMessage(content=f"# The qualitative accessment of UnitTest: {result.qualitative_assessment}\n\n {test_code}")],
                 "evaluation": result,
-                "flow": [f"evaluate_tests:success:{result.qualitative_assessment}", f"End Test Flow after {state.get("generation_attempts")} tries"]
+                "flow": [
+                    FlowStep(agent=AGENT_NAME, step = f"evaluate_tests:success:{result.qualitative_assessment}"),
+                    FlowStep(agent=AGENT_NAME, step =f"End Test Flow after {state.get("generation_attempts")} tries")]
             }
         )
     return Command(
@@ -125,7 +129,7 @@ def evaluate_tests_node(state: TestGenState, chain) -> Dict[str, Any]:
         update = {
             "messages": [AIMessage(content= result.model_dump_json(indent=2))],
             "evaluation": result,
-            "flow": [f"evaluate_tests:success:{result.qualitative_assessment}"]
+            "flow": [FlowStep(agent=AGENT_NAME, step =f"evaluate_tests:success:{result.qualitative_assessment}")]
         }
     )
 # ---------- Decision Functions ----------

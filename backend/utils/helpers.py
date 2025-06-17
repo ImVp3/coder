@@ -1,12 +1,13 @@
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
-
+import os
 from typing import Annotated
 from langchain_core.tools import tool, InjectedToolCallId
 from langgraph.prebuilt import InjectedState
 from langgraph.graph import MessagesState
 from langgraph.types import Command
+import json
 
 from infrastructure.vectorstore import ChromaVectorStore
 
@@ -68,3 +69,29 @@ def pretty_print_messages(messages: list[BaseMessage]):
         print(f"\n[{idx}] {role}:")
         print(msg.content)
     print("\n--- End of Trace ---\n")
+
+def print_directory_tree(path, indent=''):
+    if not os.path.isdir(path):
+        print(f"{indent}[FILE] {os.path.basename(path)}")
+        return
+
+    print(f"{indent}[DIR]  {os.path.basename(path) or path}")
+    for item in sorted(os.listdir(path)):
+        item_path = os.path.join(path, item)
+        if os.path.isdir(item_path):
+            print_directory_tree(item_path, indent + '    ')
+        else:
+            print(f"{indent}    [FILE] {item}")
+
+def serialize_state(state):
+    def serialize_value(value):
+        if isinstance(value, list):
+            return [serialize_value(v) for v in value]
+        elif hasattr(value, "dict"):
+            return value.dict()
+        elif isinstance(value, dict):
+            return {k: serialize_value(v) for k, v in value.items()}
+        else:
+            return value
+
+    return json.dumps(serialize_value(state))

@@ -44,3 +44,7 @@ class TestCodeEvaluation(BaseModel):
     positive_feedback: List[str] = Field(default_factory=list) 
     areas_for_improvement: List[str] = Field(default_factory=list) 
     other_suggestions: List[str] = Field(default_factory=list)
+
+class FlowStep(BaseModel):
+    step: str
+    agent: str 
