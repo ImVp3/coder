@@ -1,3 +1,8 @@
+<blockquote>
+  ⚠️ <strong>Warning:</strong> This repository will be upgraded to MCP and A2A. The final version is available at https://github.com/ImVp3/a2a-mcp-coder-assistant
+</blockquote>
+
+</blockquote>
 # 🤖 Code Assistant Project
 
 An intelligent code generation and documentation management system designed to supercharge your development workflow using the power of AI. This project aims to provide developers with context-aware code generation, automated unit test generation .etc
